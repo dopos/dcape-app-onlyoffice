@@ -20,9 +20,11 @@ services:
       - DB_TYPE=postgres
       - DB_NAME=${PGDATABASE}
       - DB_USER=${PGUSER}
-      - POSTGRES_PASSWORD=${PGPASSWORD}
+      - DB_PWD=${PGPASSWORD}
       - DB_HOST=db
       - DB_PORT=5432
+      - AMQP_TYPE=rabbitmq
+      - AMQP_URI=amqp://guest:guest@onlyoffice-rabbitmq
     stdin_open: true
     stop_grace_period: 60s
     volumes:
@@ -34,7 +36,14 @@ services:
   onlyoffice-rabbitmq:
     container_name: onlyoffice-rabbitmq
     image: rabbitmq
+    networks:
+      - lan
     restart: always
+  networks:
+    expose:
+      - "5672"
+    volumes:
+      - ${APP_ROOT}/rabbit:/var/lib/rabbitmq
 
 networks:
   lan:
