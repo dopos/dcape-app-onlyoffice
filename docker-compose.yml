@@ -16,11 +16,25 @@ services:
       - traefik.http.middlewares.onlyoffice-headers.headers.customrequestheaders.X-Forwarded-Proto=https
       - traefik.http.middlewares.onlyoffice-headers.headers.accessControlAllowOriginList='*'
       - traefik.http.routers.onlyoffice.middlewares=hsts,onlyoffice-headers
+    environment:
+      - DB_TYPE=postgres
+      - DB_NAME=${PGDATABASE}
+      - DB_USER=${PGUSER}
+      - POSTGRES_PASSWORD=${PGPASSWORD}
+      - DB_HOST=db
+      - DB_PORT=5432
+    stdin_open: true
+    stop_grace_period: 60s
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - ${APP_ROOT}/data:/var/www/onlyoffice/Data
       - ${APP_ROOT}/logs:/var/log/onlyoffice
+
+  onlyoffice-rabbitmq:
+    container_name: onlyoffice-rabbitmq
+    image: rabbitmq
+    restart: always
 
 networks:
   lan:
