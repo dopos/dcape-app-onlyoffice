@@ -1,0 +1,28 @@
+version: "3.2"
+services:
+
+  onlyoffice:
+    image: ${IMAGE}:${IMAGE_VER}
+    networks:
+      - lan
+    restart: always
+    labels:
+      - traefik.enable=true
+      - dcape.traefik.tag=${DCAPE_TAG}
+      - traefik.http.routers.onlyoffice.rule=Host(`${APP_SITE:?Must be set}`)
+      - traefik.http.routers.onlyoffice.tls=${USE_TLS}
+      - traefik.http.routers.onlyoffice.tls.certresolver=letsEncrypt
+      - traefik.http.middlewares.hsts.headers.customresponseheaders.Strict-Transport-Security="max-age=15552000; includeSubDomains"
+      - traefik.http.middlewares.onlyoffice-headers.headers.customrequestheaders.X-Forwarded-Proto=https
+      - traefik.http.middlewares.onlyoffice-headers.headers.accessControlAllowOriginList='*'
+      - traefik.http.routers.onlyoffice.middlewares=hsts,onlyoffice-headers
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ${APP_ROOT}/data:/var/www/onlyoffice/Data
+      - ${APP_ROOT}/logs:/var/log/onlyoffice
+
+networks:
+  lan:
+    external:
+      name: ${DCAPE_NET}
